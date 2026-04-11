@@ -42,6 +42,8 @@ export function InternshipBot() {
 
       if (data.error) {
         setMessages(prev => [...prev, { type: 'bot', content: data.error }]);
+      } else if (data.reply) {
+        setMessages(prev => [...prev, { type: 'bot', content: data.reply }]);
       } else if (data.internships) {
         setMessages(prev => [...prev, { 
           type: 'bot', 
@@ -114,7 +116,7 @@ export function InternshipBot() {
             >
               {messages.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] rounded-[1.5rem] p-4 text-sm font-medium ${
+                  <div className={`max-w-[85%] rounded-[1.5rem] p-4 text-sm font-medium whitespace-pre-wrap ${
                     msg.type === 'user' 
                       ? 'bg-primary-600 text-white shadow-lg shadow-primary-200' 
                       : 'bg-white text-slate-700 shadow-sm border border-slate-100'

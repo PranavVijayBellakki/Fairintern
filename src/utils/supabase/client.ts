@@ -7,4 +7,10 @@ export const createClient = () =>
   createBrowserClient(
     supabaseUrl!,
     supabaseKey!,
+    {
+      auth: {
+        persistSession: true,
+        storage: typeof window !== 'undefined' ? window.sessionStorage : undefined,
+      },
+    }
   );

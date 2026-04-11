@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { MOCK_INTERNSHIPS } from '@/src/mockData';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Search, Zap, CheckCircle2, AlertTriangle, AlertOctagon, Calendar } from 'lucide-react';
+import { Shield, Search, Calendar } from 'lucide-react';
 import { Modal } from '@/src/components/ui/Modal';
 
 export function Home() {
   const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem('token');
+  const isAuthenticated = !!sessionStorage.getItem('token');
   const [internships, setInternships] = useState<any[]>([]);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [intendedRole, setIntendedRole] = useState<'student' | 'recruiter'>('student');
   
-  const [fairOnly, setFairOnly] = useState(false);
   const [paidOnly, setPaidOnly] = useState(false);
 
   React.useEffect(() => {
@@ -23,8 +23,9 @@ export function Home() {
     }
   }, []);
   
-  const handleActionClick = () => {
+  const handleActionClick = (role: 'student' | 'recruiter' = 'student') => {
     if (!isAuthenticated) {
+      setIntendedRole(role);
       setIsAuthModalOpen(true);
     }
   };
@@ -39,23 +40,23 @@ export function Home() {
         <section className="w-full max-w-5xl mx-auto px-4 py-24 text-center flex flex-col items-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-full text-xs font-semibold text-slate-600 mb-8 shadow-sm">
             <Shield className="w-4 h-4 text-primary-500" />
-            AI-POWERED INTERNSHIP VETTING APP
+            INTERNSHIP DISCOVERY APP
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-slate-900 tracking-tight leading-tight mb-6">
-            Find Fair Internships.<br className="hidden md:block"/> Avoid the Exploitation.
+            Find Internships.<br className="hidden md:block"/> Launch Your Career.
           </h1>
           <p className="text-lg md:text-xl text-slate-500 max-w-3xl mb-10 leading-relaxed font-medium">
-            We use AI to analyze internship descriptions, highlighting skill-building opportunities and flagging unpaid, production-heavy roles.
+            Discover the latest internship opportunities specialized for tech and creative roles.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 w-full flex-wrap justify-center">
             <button 
-              onClick={handleActionClick}
+              onClick={() => handleActionClick('student')}
               className="px-8 py-3.5 bg-slate-900 text-white font-semibold rounded-full hover:bg-slate-800 transition-all shadow-lg"
             >
               Browse Internships
             </button>
             <button 
-              onClick={handleActionClick}
+              onClick={() => handleActionClick('recruiter')}
               className="px-8 py-3.5 bg-white text-slate-900 border-2 border-slate-200 font-semibold rounded-full hover:bg-slate-50 transition-all"
             >
               Post an Internship
@@ -65,10 +66,10 @@ export function Home() {
 
         {/* Showcase exactly 3 */}
         <section className="w-full max-w-7xl mx-auto px-4 pb-24">
-          <p className="text-center text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Sample Vetted Opportunities</p>
+          <p className="text-center text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Sample Opportunities</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {MOCK_INTERNSHIPS.slice(0, 3).map(internship => (
-              <InternshipCard key={internship.id} {...internship} onClick={handleActionClick} />
+              <InternshipCard key={internship.id} {...internship} onClick={() => handleActionClick('student')} />
             ))}
           </div>
         </section>
@@ -76,7 +77,7 @@ export function Home() {
         <Modal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} title="Sign In to Continue" className="max-w-sm text-center p-6">
           <p className="text-slate-600 mb-6">You must be signed in to view complete details, apply, or post roles.</p>
           <div className="flex flex-col gap-3">
-            <button onClick={() => navigate('/auth')} className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800">
+            <button onClick={() => navigate(`/auth?role=${intendedRole}`)} className="w-full py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800">
               Go to Login / Signup
             </button>
           </div>
@@ -103,16 +104,10 @@ export function Home() {
           
           <div className="flex gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
             <button 
-              onClick={() => setFairOnly(!fairOnly)}
-              className={`px-5 py-2.5 border rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${fairOnly ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
-            >
-              Fair Only
-            </button>
-            <button 
               onClick={() => setPaidOnly(!paidOnly)}
               className={`px-5 py-2.5 border rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${paidOnly ? 'bg-slate-900 text-white border-slate-900' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}
             >
-              Paid Only
+              Stipend Only
             </button>
 
           </div>
@@ -121,7 +116,6 @@ export function Home() {
         {/* listings */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {internships.filter(i => {
-            if (fairOnly && i.fairnessLabel.toLowerCase() !== 'fair') return false;
             const isUnpaid = i.stipend.toLowerCase().includes('unpaid') || i.stipend.toLowerCase().includes('not listed');
             if (paidOnly && isUnpaid) return false;
             return true;
@@ -139,25 +133,7 @@ export function Home() {
 }
 
 function InternshipCard(props: any) {
-  const { role, company, stipend, fairnessScore, fairnessLabel, flags, source, startDate, endDate, onClick } = props;
-
-  const getFairnessColor = () => {
-    if (fairnessLabel.toLowerCase() === 'fair') return 'bg-green-100 text-green-800 border-green-200';
-    if (fairnessLabel.toLowerCase() === 'suspicious') return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    return 'bg-red-100 text-red-800 border-red-200';
-  };
-
-  const getFairnessProgressColor = () => {
-    if (fairnessScore >= 8) return 'bg-green-500';
-    if (fairnessScore >= 5) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
-
-  const getIcon = () => {
-    if (fairnessScore >= 8) return <CheckCircle2 className="w-4 h-4" />;
-    if (fairnessScore >= 5) return <AlertTriangle className="w-4 h-4" />;
-    return <AlertOctagon className="w-4 h-4" />;
-  };
+  const { role, company, stipend, source, startDate, endDate, onClick } = props;
 
   return (
     <div 
@@ -182,34 +158,6 @@ function InternshipCard(props: any) {
             </div>
           )}
         </div>
-        <div className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 border ${getFairnessColor()} shrink-0`}>
-          {getIcon()}
-          {fairnessLabel}
-        </div>
-      </div>
-
-      {/* Progress Bar Area */}
-      <div className="mb-5">
-        <div className="flex justify-between items-center mb-1.5">
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Fairness Score</span>
-          <span className="text-sm font-bold text-slate-700">{fairnessScore}/10</span>
-        </div>
-        <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-          <div className={`h-2 rounded-full ${getFairnessProgressColor()}`} style={{ width: `${(fairnessScore / 10) * 100}%` }}></div>
-        </div>
-      </div>
-
-      {/* Analysis Flags */}
-      <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 mt-auto">
-        <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Analysis Flags</h4>
-        <ul className="text-sm text-slate-700 space-y-1.5">
-          {flags.map((flag: string, i: number) => (
-            <li key={i} className="flex items-start gap-2">
-               <span className="text-slate-400 leading-none mt-0.5">•</span>
-               <span className="leading-tight">{flag}</span>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

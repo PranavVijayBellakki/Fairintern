@@ -21,8 +21,8 @@ export function AuthCallback() {
 
       if (data.session) {
         // Mock token for existing logic compat
-        localStorage.setItem('token', data.session.access_token);
-        localStorage.setItem('user', JSON.stringify({ 
+        sessionStorage.setItem('token', data.session.access_token);
+        sessionStorage.setItem('user', JSON.stringify({ 
           email: data.session.user.email, 
           role: roleFromUrl 
         }));

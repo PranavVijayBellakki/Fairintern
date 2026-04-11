@@ -1,22 +1,42 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MOCK_APPLICANTS, MOCK_INTERNSHIPS } from '@/src/mockData';
-import { Plus, Users, FileText, Check, X, ShieldAlert, Calendar, Trash2, Edit3, Briefcase } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Plus, Users, User, FileText, Check, X, ShieldAlert, Calendar, Trash2, Edit3, Briefcase } from 'lucide-react';
 
 export function RecruiterDashboard() {
   const [activeTab, setActiveTab] = useState<'review' | 'post' | 'manage'>('review');
   const [applicants, setApplicants] = useState(MOCK_APPLICANTS);
   const [internships, setInternships] = useState<any[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isGeneratingFeedback, setIsGeneratingFeedback] = useState(false);
+  const [activeFeedbackApp, setActiveFeedbackApp] = useState<any>(null);
+  const [activeFeedback, setActiveFeedback] = useState<any>(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!sessionStorage.getItem('token')) {
+      navigate('/auth?role=recruiter');
+    }
+  }, [navigate]);
   
   // Load data from localStorage
   useEffect(() => {
-    const saved = localStorage.getItem('all_internships');
-    if (saved) {
-      setInternships(JSON.parse(saved));
+    const savedInt = localStorage.getItem('all_internships');
+    if (savedInt) {
+      setInternships(JSON.parse(savedInt));
     } else {
       setInternships(MOCK_INTERNSHIPS);
       localStorage.setItem('all_internships', JSON.stringify(MOCK_INTERNSHIPS));
+    }
+
+    const savedApp = localStorage.getItem('all_applicants');
+    if (savedApp) {
+      setApplicants(JSON.parse(savedApp));
+    } else {
+      setApplicants(MOCK_APPLICANTS);
+      localStorage.setItem('all_applicants', JSON.stringify(MOCK_APPLICANTS));
     }
   }, []);
 
@@ -33,17 +53,7 @@ export function RecruiterDashboard() {
 
   const handlePost = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsAnalyzing(true);
-
     try {
-      // Automatic Fairness Analysis
-      const analysisRes = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: formData.description })
-      });
-      const analysisData = await analysisRes.json();
-      
       let updatedList;
       if (editingId) {
         // Update existing
@@ -54,12 +64,9 @@ export function RecruiterDashboard() {
           description: formData.description,
           task: formData.customTask || item.task,
           startDate: formData.startDate,
-          endDate: formData.endDate,
-          fairnessScore: analysisData.fairnessScore || item.fairnessScore,
-          fairnessLabel: analysisData.fairnessLabel || item.fairnessLabel,
-          flags: analysisData.flags || item.flags
+          endDate: formData.endDate
         } : item);
-        alert("Internship updated with new Fairness Analysis!");
+        alert("Internship updated successfully!");
       } else {
         // Create new
         const newInternship = {
@@ -67,9 +74,6 @@ export function RecruiterDashboard() {
           role: formData.title,
           company: "Your Company", 
           stipend: formData.isPaid === 'yes' ? formData.stipend : 'Unpaid',
-          fairnessScore: analysisData.fairnessScore || 5, 
-          fairnessLabel: analysisData.fairnessLabel || "Unclear",
-          flags: analysisData.flags || ["Manual Post"],
           description: formData.description,
           source: "Recruiter Posted",
           task: formData.customTask || "Complete the technical assessment assigned by the team.",
@@ -77,7 +81,7 @@ export function RecruiterDashboard() {
           endDate: formData.endDate,
         };
         updatedList = [...internships, newInternship];
-        alert(`Internship successfully posted! Fairness Score: ${analysisData.fairnessScore}/10`);
+        alert(`Internship successfully posted!`);
       }
 
       setInternships(updatedList);
@@ -86,10 +90,10 @@ export function RecruiterDashboard() {
       setEditingId(null);
       setActiveTab('manage');
     } catch (err) {
-      console.error("Fairness Analysis failed", err);
-      alert("Something went wrong with the AI analysis. Please try again.");
+      console.error("Posting failed", err);
+      alert("Something went wrong. Please try again.");
     } finally {
-      setIsAnalyzing(false);
+      // Done
     }
   };
 
@@ -115,15 +119,60 @@ export function RecruiterDashboard() {
     }
   };
 
-  const handleStatusChange = (id: string, status: 'accepted' | 'rejected') => {
-    setApplicants(applicants.map(app => app.id === id ? { ...app, status } : app));
+  const handleStatusChange = async (id: string, status: 'accepted' | 'rejected') => {
+    const updated = applicants.map(app => app.id === id ? { ...app, status } : app);
+    setApplicants(updated);
+    localStorage.setItem('all_applicants', JSON.stringify(updated));
+    
+    // Auto-generate feedback if rejected
+    if (status === 'rejected') {
+      const app = applicants.find(a => a.id === id);
+      const internship = internships.find(i => i.id === app?.internshipId);
+      
+      if (app && internship) {
+        setIsGeneratingFeedback(true);
+        setActiveFeedbackApp(app);
+        
+        try {
+          const res = await fetch('/api/ai/mentor-feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              taskDescription: internship.task,
+              studentSubmission: app.submissionContent
+            })
+          });
+          const data = await res.json();
+          setActiveFeedback(data);
+        } catch (err) {
+          console.error("Feedback generation failed:", err);
+        } finally {
+          setIsGeneratingFeedback(false);
+        }
+      }
+    }
+  };
+
+  const handlePostFeedback = () => {
+    if (activeFeedbackApp && activeFeedback) {
+      const updated = applicants.map(app => 
+        app.id === activeFeedbackApp.id 
+          ? { ...app, mentorFeedback: activeFeedback } 
+          : app
+      );
+      setApplicants(updated);
+      localStorage.setItem('all_applicants', JSON.stringify(updated));
+      alert(`Constructive feedback posted for ${activeFeedbackApp.name}!`);
+      setActiveFeedbackApp(null);
+      setActiveFeedback(null);
+    }
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen bg-slate-50">
       <div className="mb-10">
         <h1 className="text-3xl font-black text-slate-900">Recruiter Portal</h1>
-        <p className="text-slate-500 font-medium mt-1">Manage fair postings and review skills-based applicants.</p>
+        <p className="text-slate-500 font-medium mt-1">Manage your postings and review skills-based applicants.</p>
       </div>
 
       {/* Tabs */}
@@ -226,8 +275,8 @@ export function RecruiterDashboard() {
       {activeTab === 'post' && (
         <form onSubmit={handlePost} className="bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-sm max-w-4xl mx-auto">
             <div className="flex items-center gap-3 bg-indigo-50 text-indigo-800 p-4 rounded-2xl border border-indigo-100 mb-8 font-bold text-sm">
-              <ShieldAlert className="w-5 h-5 shrink-0" />
-              {editingId ? "You are now editing an existing internship post." : "New postings are analyzed by AI for fairness compliance automatically."}
+              <Plus className="w-5 h-5 shrink-0" />
+              {editingId ? "You are now editing an existing internship post." : "Post an internship for students to browse and apply."}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -304,17 +353,9 @@ export function RecruiterDashboard() {
             <div className="flex gap-4">
               <button 
                 type="submit" 
-                disabled={isAnalyzing}
-                className={`flex-1 py-5 text-white font-black rounded-2xl transition-all shadow-xl uppercase tracking-widest flex items-center justify-center gap-2 ${isAnalyzing ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-900 hover:bg-slate-800'}`}
+                className="flex-1 py-5 text-white bg-slate-900 hover:bg-slate-800 font-black rounded-2xl transition-all shadow-xl uppercase tracking-widest flex items-center justify-center gap-2"
               >
-                 {isAnalyzing ? (
-                   <>
-                     <div className="w-5 h-5 border-4 border-white border-t-transparent rounded-full animate-spin" />
-                     Analyzing Fairness...
-                   </>
-                 ) : (
-                   editingId ? 'Save Changes' : 'Confirm & Post'
-                 )}
+                {editingId ? 'Save Changes' : 'Confirm & Post'}
               </button>
               {editingId && (
                 <button type="button" onClick={() => { setEditingId(null); setActiveTab('manage'); }} className="px-8 py-5 bg-slate-100 text-slate-900 font-bold rounded-2xl border border-slate-200 uppercase tracking-widest">
@@ -323,6 +364,83 @@ export function RecruiterDashboard() {
               )}
             </div>
         </form>
+      )}
+      {/* AI Feedback Modal */}
+      {(isGeneratingFeedback || activeFeedback) && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl border border-slate-100"
+          >
+            <div className="bg-slate-900 p-8 text-white relative">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-indigo-500 rounded-2xl flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-black uppercase tracking-tight">AI Career Mentor Feedback</h2>
+                  <p className="text-indigo-300 text-xs font-bold uppercase tracking-widest">Constructive Review for {activeFeedbackApp?.name}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => { setActiveFeedbackApp(null); setActiveFeedback(null); }}
+                className="absolute top-8 right-8 text-slate-400 hover:text-white transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-8 max-h-[70vh] overflow-y-auto">
+              {isGeneratingFeedback ? (
+                <div className="py-20 flex flex-col items-center justify-center gap-4 text-slate-500">
+                  <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="font-bold animate-pulse">Analyzing task and submission...</p>
+                </div>
+              ) : activeFeedback && (
+                <div className="space-y-8">
+                  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                    <p className="text-lg font-medium text-slate-700 leading-relaxed italic">"{activeFeedback.openingMessage}"</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-green-50/50 p-6 rounded-3xl border border-green-100">
+                      <h4 className="text-xs font-black text-green-700 uppercase tracking-widest mb-3">Key Strength</h4>
+                      <ul className="space-y-2">
+                        {activeFeedback.strengths.map((s: string, i: number) => (
+                          <li key={i} className="text-sm font-bold text-green-800 flex items-start gap-2">
+                            <Check className="w-4 h-4 mt-0.5 shrink-0" /> {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100">
+                      <h4 className="text-xs font-black text-indigo-700 uppercase tracking-widest mb-3">Tech Lead Advice</h4>
+                      <ul className="space-y-3">
+                        {activeFeedback.actionableFeedback.map((f: string, i: number) => (
+                          <li key={i} className="text-sm font-bold text-indigo-800 flex items-start gap-2 leading-snug">
+                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0" /> {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="text-center pt-4">
+                    <p className="text-slate-500 font-medium">{activeFeedback.closingMessage}</p>
+                    <button 
+                      onClick={handlePostFeedback}
+                      className="mt-8 w-full py-5 bg-slate-900 text-white font-black rounded-3xl hover:bg-slate-800 transition-all shadow-xl shadow-slate-200 uppercase tracking-widest flex items-center justify-center gap-3"
+                    >
+                      <Plus className="w-5 h-5" /> Post Feedback to Student
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_INTERNSHIPS } from '@/src/mockData';
-import { Building2, IndianRupee, ArrowLeft, ShieldAlert, CheckCircle2, AlertTriangle, AlertOctagon, Lock, Upload, PlayCircle, User, Calendar, Briefcase } from 'lucide-react';
+import { Building2, IndianRupee, ArrowLeft, Lock, Upload, PlayCircle, User, Calendar, Briefcase, ShieldAlert, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { Modal } from '@/src/components/ui/Modal';
 import { useProctoring } from '@/src/hooks/useProctoring';
 import { useLockdown } from '@/src/hooks/useLockdown';
@@ -101,17 +101,7 @@ export function InternshipDetail() {
 
   if (!internship) return <div className="p-8 text-center text-slate-500 font-medium">Internship not found or loading...</div>;
 
-  const getFairnessColor = () => {
-    if (internship.fairnessLabel.toLowerCase() === 'fair') return 'bg-green-100 text-green-800 border-green-200';
-    if (internship.fairnessLabel.toLowerCase() === 'suspicious') return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    return 'bg-red-100 text-red-800 border-red-200';
-  };
 
-  const getFairnessProgressColor = () => {
-    if (internship.fairnessScore >= 8) return 'bg-green-500';
-    if (internship.fairnessScore >= 5) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen">
@@ -141,10 +131,6 @@ export function InternshipDetail() {
               )}
             </div>
           </div>
-          <div className={`px-4 py-2 rounded-xl text-sm font-bold uppercase tracking-wider flex items-center gap-2 border ${getFairnessColor()}`}>
-             {internship.fairnessScore >= 8 ? <CheckCircle2 className="w-5 h-5"/> : <AlertTriangle className="w-5 h-5"/>}
-             {internship.fairnessLabel}
-          </div>
         </div>
 
         <div className="prose prose-slate max-w-none mb-10">
@@ -152,34 +138,7 @@ export function InternshipDetail() {
           <p className="text-slate-600 leading-relaxed font-medium">{internship.description}</p>
         </div>
 
-        {/* AI Fairness Analysis Box */}
-        <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200">
-          <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-5 flex items-center gap-2">
-            <ShieldAlert className="w-5 h-5 text-green-600" /> AI Fairness Breakdown
-          </h3>
-          
-          <div className="mb-6 max-w-lg">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Fairness Score</span>
-              <span className="text-sm font-bold text-slate-800">{internship.fairnessScore}/10</span>
-            </div>
-            <div className="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden">
-              <div className={`h-2.5 rounded-full ${getFairnessProgressColor()}`} style={{ width: `${(internship.fairnessScore / 10) * 100}%` }}></div>
-            </div>
-          </div>
-          
-          <div>
-            <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Analysis Flags</h4>
-            <ul className="space-y-2">
-              {internship.flags.map((flag: string, idx: number) => (
-                <li key={idx} className="flex items-start gap-2 text-sm font-semibold text-slate-700">
-                  <span className="text-slate-400 mt-0.5">•</span>
-                  {flag}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
+
       </div>
 
       {/* Action Area for Application Flow */}

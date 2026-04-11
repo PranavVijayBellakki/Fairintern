@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { FormInput } from '@/src/components/ui/FormInput';
 import { GoogleAuthButton } from '@/src/components/ui/GoogleAuthButton';
 import { createClient } from '@/src/utils/supabase/client';
@@ -46,7 +46,9 @@ function Login3DBackground() {
 }
 
 export function Auth() {
-  const [authMode, setAuthMode] = useState<'student' | 'recruiter'>('student');
+  const [searchParams] = useSearchParams();
+  const initialMode = searchParams.get('role') === 'recruiter' ? 'recruiter' : 'student';
+  const [authMode, setAuthMode] = useState<'student' | 'recruiter'>(initialMode);
   const [isLogin, setIsLogin] = useState(true);
   
   // Student states
@@ -74,8 +76,8 @@ export function Auth() {
       });
       const data = await res.json();
       if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('user', JSON.stringify(data.user));
         navigate(data.user.role === 'recruiter' ? '/recruiter' : '/');
       } else {
         alert(data.error || 'Authentication failed');
@@ -95,8 +97,8 @@ export function Auth() {
       });
       const data = await res.json();
       if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('user', JSON.stringify(data.user));
         navigate('/recruiter');
       } else {
         alert(data.error || 'Recruiter login failed');
@@ -129,9 +131,9 @@ export function Auth() {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === 'OAUTH_AUTH_SUCCESS') {
-        localStorage.setItem('token', event.data.token);
+        sessionStorage.setItem('token', event.data.token);
         const userRole = authMode === 'recruiter' ? 'recruiter' : 'student';
-        localStorage.setItem('user', JSON.stringify({ email: 'google@user.com', role: userRole }));
+        sessionStorage.setItem('user', JSON.stringify({ email: 'google@user.com', role: userRole }));
         navigate(userRole === 'recruiter' ? '/recruiter' : '/');
       }
     };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { User, Calendar, CreditCard, GraduationCap, Edit2, Save, BadgeCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -22,10 +23,17 @@ const COLLEGES = [
 
 export function Profile() {
   const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!sessionStorage.getItem('token')) {
+      navigate('/auth?role=student');
+    }
+  }, [navigate]);
   
-  // Load profile from localStorage or use defaults
+  // Load profile from sessionStorage or use defaults
   const [profile, setProfile] = useState(() => {
-    const saved = localStorage.getItem('studentProfile');
+    const saved = sessionStorage.getItem('studentProfile');
     if (saved) return JSON.parse(saved);
     return {
       name: '',
@@ -47,7 +55,7 @@ export function Profile() {
     const finalCollege = profile.college === 'Other' ? otherCollege : profile.college;
     const finalProfile = { ...profile, college: finalCollege };
     
-    localStorage.setItem('studentProfile', JSON.stringify(finalProfile));
+    sessionStorage.setItem('studentProfile', JSON.stringify(finalProfile));
     setProfile(finalProfile);
     setIsEditing(false);
   };

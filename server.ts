@@ -20,10 +20,7 @@ const mockInternships = [
     description: "Join the Google Search frontend team. Work on React components with a dedicated mentor.",
     work_type: "learning",
     tasks: [{ id: "t1", title: "Build a responsive search bar component", type: "link" }],
-    posted_at: new Date().toISOString().split('T')[0],
-    fairnessScore: 10,
-    fairnessLabel: "Fair",
-    flags: ["Excellent stipend", "Premium learning", "Clear mentorship"]
+    posted_at: new Date().toISOString().split('T')[0]
   },
   {
     id: "int-001b",
@@ -33,10 +30,7 @@ const mockInternships = [
     description: "Work with our delivery scheduling team. Strong programming skills required. Fast-paced environment.",
     work_type: "learning",
     tasks: [{ id: "t1", title: "Implement a rate-limiter in Express", type: "link" }],
-    posted_at: new Date().toISOString().split('T')[0],
-    fairnessScore: 9,
-    fairnessLabel: "Fair",
-    flags: ["Good stipend", "Skill-building tasks"]
+    posted_at: new Date().toISOString().split('T')[0]
   },
   {
     id: "int-002",
@@ -48,10 +42,7 @@ const mockInternships = [
     tasks: [
       { id: "t1", title: "Submit a 1-month content calendar", type: "file" }
     ],
-    posted_at: "2026-03-22",
-    fairnessScore: 2,
-    fairnessLabel: "Exploitative Risk",
-    flags: ["Unpaid internship", "Production work (managing all accounts)", "High weekly hours (40)"]
+    posted_at: "2026-03-22"
   },
   {
     id: "int-003",
@@ -63,10 +54,7 @@ const mockInternships = [
     tasks: [
       { id: "t1", title: "Write a Python script to clean a CSV", type: "text" }
     ],
-    posted_at: "2026-03-25",
-    fairnessScore: 9,
-    fairnessLabel: "Fair",
-    flags: ["Good stipend", "Mentorship mentioned"]
+    posted_at: "2026-03-25"
   },
   {
     id: "int-004",
@@ -78,10 +66,7 @@ const mockInternships = [
     tasks: [
       { id: "t1", title: "Design 3 logo concepts", type: "file" }
     ],
-    posted_at: "2026-03-28",
-    fairnessScore: 4,
-    fairnessLabel: "Suspicious",
-    flags: ["Missing stipend", "Mandatory purchase (Adobe CC)", "Production work"]
+    posted_at: "2026-03-28"
   },
   {
     id: "int-005",
@@ -93,10 +78,7 @@ const mockInternships = [
     tasks: [
       { id: "t1", title: "Solve a basic algorithmic problem", type: "text" }
     ],
-    posted_at: "2026-04-01",
-    fairnessScore: 10,
-    fairnessLabel: "Fair",
-    flags: ["Excellent stipend", "Clear mentorship", "Skill-building tasks"]
+    posted_at: "2026-04-01"
   },
   {
     id: "int-006",
@@ -108,10 +90,7 @@ const mockInternships = [
     tasks: [
       { id: "t1", title: "Submit a 1000-word sample article", type: "text" }
     ],
-    posted_at: "2026-04-05",
-    fairnessScore: 3,
-    fairnessLabel: "Exploitative Risk",
-    flags: ["Unpaid internship", "Production work (5 articles/week)", "Vague 'exposure' compensation"]
+    posted_at: "2026-04-05"
   }
 ];
 
@@ -153,10 +132,7 @@ app.post('/api/internships', (req, res) => {
   const newInternship = {
     id: `int-00${mockInternships.length + 1}`,
     ...req.body,
-    posted_at: new Date().toISOString().split('T')[0],
-    fairnessScore: 5, // Mock default
-    fairnessLabel: "Suspicious",
-    flags: ["Pending AI analysis"]
+    posted_at: new Date().toISOString().split('T')[0]
   };
   mockInternships.push(newInternship);
   res.status(201).json(newInternship);
@@ -176,161 +152,91 @@ app.post('/api/applications/:internshipId', (req, res) => {
   res.status(201).json(newSubmission);
 });
 
-// --- AI Analyzer Service ---
-app.post('/api/analyze', async (req, res) => {
+// --- AI Career Mentor Feedback Service ---
+app.post('/api/ai/mentor-feedback', async (req, res) => {
   try {
-    const { text } = req.body;
-    if (!text) {
-      return res.status(400).json({ error: 'Text is required' });
+    const { taskDescription, studentSubmission } = req.body;
+    if (!taskDescription || !studentSubmission) {
+      return res.status(400).json({ error: 'Task Description and Student Submission are required' });
     }
 
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
-      contents: `Analyze the following internship description for fairness based on these criteria:
-      - stipend: "explicit" (has currency), "unpaid" (explicitly says unpaid), "missing".
-      - work_type: "learning" (mentions mentoring/training), "production" (shipping features/replaceable labor), "unclear".
-      - role_clarity: "clear" (metrics/responsibilities defined), "vague" (generic).
-      - task_nature: "skill-building" (portfolio-worthy), "exploitative" (free labor, pure data entry without mentorship), "unclear".
-      
-      Calculate fairness_score (0-10):
-      - Start at 10.
-      - If unpaid AND production-focused: -6
-      - If missing stipend AND long hours implied: -4
-      - If vague role: -2
-      - If exploitative task: -4
-      - If no task-based application mechanism mentioned: -1
-      - If "mandatory purchase" or "paid training" required: -4
-      - If "college credit ONLY" required: -2
-      - Floor at 0, round to integer.
-      
-      Determine fairness_label:
-      - 8-10: Fair
-      - 5-7: Suspicious
-      - 0-4: Exploitative Risk
-      
-      Provide flags as a string array of concise reasons for the score deductions.
+    const prompt = `You are an empathetic, senior-level Tech Lead and Career Mentor. Your job is to give concise, constructive feedback to a student who applied for an internship but was not selected.
+    
+    Inputs:
+    1. Task Description: "${taskDescription}"
+    2. Student Submission: "${studentSubmission}"
 
-      Internship Description:
-      "${text}"
-      `,
+    Produce only a single raw JSON object (no surrounding text, no code fences) matching this exact schema:
+    {
+      "openingMessage": "A brief, kind 1-2 sentence opening thanking them for their effort.",
+      "strengths": ["1 brief bullet point highlighting something they did well"],
+      "actionableFeedback": ["1-2 brief, specific technical or structural bullet points on how to improve the submission"],
+      "closingMessage": "A short, encouraging sign-off."
+    }
+
+    Rules:
+    - Tone: Professional, encouraging, warm and constructive. Never condescending.
+    - Brevity: Extremely concise.
+    - Specificity: REFERENCE EXACT ELEMENTS (filenames, functions, lines, UI screens) from their submission. Cite them by name.
+    - Guardrails: Do NOT provide complete fixes or copy-paste code. Point to directions to explore.
+    - Actionable feedback: Prioritize 1-2 impactful improvements (bug, UX, edge case).
+    
+    Return VALID JSON ONLY.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
       config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            stipend: { type: Type.STRING, description: "explicit | missing | unpaid" },
-            work_type: { type: Type.STRING, description: "learning | production | unclear" },
-            role_clarity: { type: Type.STRING, description: "clear | vague" },
-            task_nature: { type: Type.STRING, description: "skill-building | exploitative | unclear" },
-            fairness_score: { type: Type.INTEGER, description: "Int from 0 to 10" },
-            fairness_label: { type: Type.STRING, description: "Fair | Suspicious | Exploitative Risk" },
-            flags: {
-              type: Type.ARRAY,
-              items: { type: Type.STRING },
-              description: "string array of concise reasons"
-            }
-          },
-          required: ["stipend", "work_type", "role_clarity", "task_nature", "fairness_score", "fairness_label", "flags"]
-        }
+        responseMimeType: "application/json"
       }
     });
 
     const result = JSON.parse(response.text || '{}');
     res.json(result);
   } catch (error) {
-    console.error('Analyzer error:', error);
-    res.status(500).json({ error: 'Failed to analyze internship' });
+    console.error('Mentor feedback error:', error);
+    res.status(500).json({ error: 'Failed to generate mentor feedback' });
   }
 });
+
 
 // --- AI Internship Discovery Agent (New) ---
 app.post('/api/ai/chat', async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'Message is required' });
 
-  // Guardrail check: Is this related to internships or careers?
-  const keywords = ['intern', 'job', 'career', 'hiring', 'opportunity', 'role', 'company', 'interview', 'resume', 'skill'];
-  const isRelated = keywords.some(k => message.toLowerCase().includes(k));
-
-  if (!isRelated) {
-    return res.json({ 
-      error: "I am specialized only in internship discovery. Please ask a question related to AI internships or career opportunities." 
-    });
-  }
-
   try {
-    // 1. Get real-time data from Tavily
-    const tavilyRes = await fetch('https://api.tavily.com/search', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        api_key: process.env.TAVILY_API_KEY,
-        query: `Current internships: ${message}`,
-        search_depth: "advanced",
-        max_results: 5
-      })
-    });
-    
-    if (!tavilyRes.ok) {
-      throw new Error(`Tavily API failed with status ${tavilyRes.status}`);
-    }
-
-    const searchData: any = await tavilyRes.json();
-    const searchResults = searchData.results?.map((r: any) => `${r.title}: ${r.content}`).join('\n') || "No results found.";
-
-    // 2. Use Gemini to structure the real-time data
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
-      contents: `You are a specialized Internship Discovery Agent. 
-      The user is asking: "${message}"
-      
-      I have found the following real-time data from the web:
-      ${searchResults}
-      
-      Your task:
-      1. Extract the most relevant AI internships from this search data.
-      2. Strictly return them as a JSON array of objects.
-      3. Each object MUST have: company, role, description, location.
-      4. If the search results are poor, use your internal knowledge to supplement with legitimate opportunities.
-      
-      Return ONLY the JSON. No other text.`,
+      model: "gemini-2.5-flash",
+      contents: message,
       config: {
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: Type.OBJECT,
-          properties: {
-            internships: {
-              type: Type.ARRAY,
-              items: {
-                type: Type.OBJECT,
-                properties: {
-                  company: { type: Type.STRING },
-                  role: { type: Type.STRING },
-                  description: { type: Type.STRING },
-                  location: { type: Type.STRING }
-                },
-                required: ["company", "role", "description", "location"]
-              }
-            }
-          },
-          required: ["internships"]
-        }
+        systemInstruction: `You are the "Discovery Agent," a specialized AI assistant designed EXCLUSIVELY to help students find current internships, career opportunities, and job-related advice.
+
+# PRIMARY TASK
+Your goal is to fetch current internships from the web and provide detailed, up-to-date information including role names, companies, and application links.
+
+# OPERATIONAL RULES
+1. TOPIC RESTRICTION: You answer ONLY questions related to internships, jobs, career advice, resumes, or interview prep.
+2. REFUSAL PROTOCOL: If a user asks about general knowledge, coding help (unrelated to careers), history, math, or any non-career topic, you must politely refuse. 
+   - Example Refusal: "I am specialized only in internship discovery. Please ask a question related to AI internships or career opportunities."
+3. WEB SEARCH: Always prioritize fetching live, current data from the web using search tools to ensure the internships are not expired.
+4. FORMATTING: Present internship listings in a clean, bulleted list or table with the following headers: Role, Company, Location (or Remote), and Link.
+
+# TONE & STYLE
+- Be professional, encouraging, and concise. 
+- Do not use overly technical jargon unless it relates to the job description.`,
+        tools: [{ googleSearch: {} }]
       }
     });
 
-    const result = JSON.parse(response.text || '{}');
-    console.log("Structured Internships:", result);
-    res.json(result);
+    const reply = response.text || "I couldn't find anything right now.";
+    res.json({ reply });
   } catch (error: any) {
-    console.error('Chat AI error details:', {
-      message: error.message,
-      stack: error.stack,
-      tavilyKeyProvided: !!process.env.TAVILY_API_KEY,
-      geminiKeyProvided: !!process.env.GEMINI_API_KEY
-    });
+    console.error('Chat AI error details:', error);
     res.status(500).json({ error: 'Failed to discover internships: ' + (error.message || 'Unknown error') });
   }
 });
