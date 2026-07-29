@@ -7,7 +7,7 @@ FairIntern is a modern, AI-powered internship marketplace focused on evaluating 
 - **Frontend:** React 19, React Router, Tailwind CSS, React Three Fiber (for 3D hero elements).
 - **Backend:** Node.js/Express with Vite middleware for a seamless full-stack development experience.
 - **AI Integration:** Gemini API via \`@google/genai\` SDK for analyzing internship descriptions and calculating fairness scores.
-- **Auth:** JWT-based mock authentication with Google OAuth popup simulation.
+- **Auth:** JWT-based mock authentication with Google OAuth popup simulation. 
 
 ## Setup & Running
 

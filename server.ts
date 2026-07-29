@@ -186,23 +186,23 @@ app.post('/api/ai/mentor-feedback', async (req, res) => {
     Return VALID JSON ONLY.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json"
       }
     });
 
-    const result = JSON.parse(response.text || '{}');
-    res.json(result);
+const result = JSON.parse(response.text || '{}');
+res.json(result);
   } catch (error) {
-    console.error('Mentor feedback error:', error);
-    res.status(500).json({ error: 'Failed to generate mentor feedback' });
-  }
+  console.error('Mentor feedback error:', error);
+  res.status(500).json({ error: 'Failed to generate mentor feedback' });
+}
 });
 
 
-// --- AI Internship Discovery Agent (New) ---
+// --- AI Internship Discovery Agent (Updated for Structured Data) ---
 app.post('/api/ai/chat', async (req, res) => {
   const { message } = req.body;
   if (!message) return res.status(400).json({ error: 'Message is required' });
@@ -214,30 +214,63 @@ app.post('/api/ai/chat', async (req, res) => {
       model: "gemini-2.5-flash",
       contents: message,
       config: {
-        systemInstruction: `You are the "Discovery Agent," a specialized AI assistant designed EXCLUSIVELY to help students find current internships, career opportunities, and job-related advice.
+        systemInstruction: `You are the "Discovery Agent," a specialized AI assistant designed to help students find current internships.
+        
+        # STRICT SCOPE
+        You ONLY answer questions related to internships, career paths for students, or recruitment. 
+        If a user asks an unrelated question (e.g., general knowledge, math, science, jokes, etc.), politely decline in the "reply" field and return an empty "internships" array.
 
-# PRIMARY TASK
-Your goal is to fetch current internships from the web and provide detailed, up-to-date information including role names, companies, and application links.
+        # TASK
+        Fetch current internships EXCLUSIVELY LOCATED IN INDIA from the web using the provided tools. You MUST fetch and return AT LEAST 5 internships. 
+        Produce a JSON response containing:
+        1. "reply": A professional summary of what you found.
+        2. "internships": An array of objects, each with: "role", "company", "stipend", "location", "link", "startDate", "endDate", "source".
 
-# OPERATIONAL RULES
-1. TOPIC RESTRICTION: You answer ONLY questions related to internships, jobs, career advice, resumes, or interview prep.
-2. REFUSAL PROTOCOL: If a user asks about general knowledge, coding help (unrelated to careers), history, math, or any non-career topic, you must politely refuse. 
-   - Example Refusal: "I am specialized only in internship discovery. Please ask a question related to AI internships or career opportunities."
-3. WEB SEARCH: Always prioritize fetching live, current data from the web using search tools to ensure the internships are not expired.
-4. FORMATTING: Present internship listings in a clean, bulleted list or table with the following headers: Role, Company, Location (or Remote), and Link.
+        # LINK QUALITY (CRITICAL)
+        You MUST provide the direct destination URL for the internship (e.g., LinkedIn, Indeed, Company Career Page). 
+        NEVER provide internal Google redirect links (e.g., vertexaisearch.cloud.google.com/grounding-api-redirect). These links will result in a 404 error for the user.
+        Ensure every "link" starts with "http://" or "https://".
 
-# TONE & STYLE
-- Be professional, encouraging, and concise. 
-- Do not use overly technical jargon unless it relates to the job description.`,
+        # SOURCE ATTRIBUTION
+        For each internship found by you, the "source" field MUST be set to "AI FETCHED (Site Name)" where Site Name is the platform you found it on (e.g., "AI FETCHED (LinkedIn)", "AI FETCHED (Indeed)", "AI FETCHED (Company Site)").
+
+        # FORMAT
+        Return ONLY a single raw JSON object. Do NOT use markdown code blocks like \`\`\`json.
+        {
+          "reply": "Brief text comment",
+          "internships": [
+            { "role": "...", "company": "...", "stipend": "...", "location": "...", "link": "...", "startDate": "...", "endDate": "...", "source": "AI FETCHED (...)" }
+          ]
+        }
+
+        # RULES
+        - If no internships are found, return an empty array for "internships".
+        - Always provide a kind and professional reply.
+        - Prioritize high-accuracy, high-relevance results.`,
         tools: [{ googleSearch: {} }]
       }
     });
 
-    const reply = response.text || "I couldn't find anything right now.";
-    res.json({ reply });
+    try {
+      // Clean potential markdown blocks from the response
+      let text = response.text || '{}';
+      text = text.replace(/```json\n?|```/g, '').trim();
+      const result = JSON.parse(text);
+      res.json(result);
+    } catch (parseError) {
+      console.error('JSON Parse error:', parseError, 'Raw text:', response.text);
+      // Fallback for non-JSON or poorly formatted responses
+      res.json({ reply: response.text, internships: [] });
+    }
   } catch (error: any) {
     console.error('Chat AI error details:', error);
-    res.status(500).json({ error: 'Failed to discover internships: ' + (error.message || 'Unknown error') });
+    
+    const errorString = error.message || String(error);
+    if (errorString.includes('503') || errorString.includes('UNAVAILABLE') || errorString.includes('high demand')) {
+      return res.status(503).json({ error: "The Internship Discovery Engine is currently experiencing high demand. Please wait a moment and try again!" });
+    }
+    
+    res.status(500).json({ error: 'Failed to discover internships. Please try again later.' });
   }
 });
 

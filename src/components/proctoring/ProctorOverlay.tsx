@@ -54,27 +54,30 @@ export function ProctorOverlay({ stream, strikeCount, lastViolation, isTerminate
             exit={{ opacity: 0, scale: 0.95 }}
             className="absolute inset-0 flex items-center justify-center p-6 bg-red-950/40 backdrop-blur-sm pointer-events-auto"
           >
-             <div className="bg-white max-w-lg w-full rounded-[2.5rem] p-10 border-8 border-red-500/20 shadow-[0_35px_80px_rgba(220,38,38,0.25)] text-center relative overflow-hidden">
-                <div className="absolute -top-10 -right-10 opacity-5">
-                   <AlertTriangle className="w-48 h-48 text-red-600 rotate-12" />
+             <div className="glass-card max-w-lg w-full rounded-[3rem] p-12 border border-red-500/30 shadow-[0_0_100px_rgba(239,68,68,0.2)] text-center relative overflow-hidden">
+                <div className="absolute -top-10 -right-10 opacity-10">
+                   <AlertTriangle className="w-48 h-48 text-red-500 rotate-12" />
                 </div>
-                <div className="w-24 h-24 bg-red-100 rounded-[2rem] flex items-center justify-center mx-auto mb-8 shadow-inner shadow-red-200">
-                   <AlertTriangle className="w-12 h-12 text-red-600" />
+                <div className="w-24 h-24 bg-red-500/20 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-lg border border-red-500/20">
+                   <AlertTriangle className="w-12 h-12 text-red-400" />
                 </div>
-                <h2 className="text-4xl font-black text-slate-900 mb-4 tracking-tight uppercase">VIOLATION DETECTED</h2>
-                <div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl font-bold text-slate-600 uppercase tracking-widest text-sm mb-8">
-                   Issue Type: <span className="text-red-600">{lastViolation?.replace(/_/g, ' ') || 'SUSPICIOUS ACTIVITY'}</span>
+                <h2 className="text-4xl font-black text-white mb-6 tracking-tighter uppercase leading-none">VIOLATION DETECTED</h2>
+                <div className="bg-red-500/10 border border-red-500/20 p-5 rounded-2xl font-black text-red-400 uppercase tracking-widest text-xs mb-10">
+                   Issue Type: <span className="text-white">{lastViolation?.replace(/_/g, ' ') || 'SUSPICIOUS ACTIVITY'}</span>
                 </div>
                 
-                <div className="flex justify-center gap-3 mb-8">
+                <div className="flex justify-center gap-4 mb-10">
                   {[1, 2, 3].map(i => (
-                    <div key={i} className={`w-4 h-12 rounded-full transition-all duration-500 ${strikeCount >= i ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]' : 'bg-slate-100'}`} />
+                    <div key={i} className={`w-5 h-16 rounded-full transition-all duration-700 ${strikeCount >= i ? 'bg-red-500 shadow-[0_0_20px_rgba(239,68,68,0.6)]' : 'bg-white/10'}`} />
                   ))}
                 </div>
 
-                <p className="text-slate-500 font-bold mb-0">Strike <span className="text-red-600 text-6xl block mt-2 text-center">{strikeCount} <span className="text-2xl text-slate-400">/ 3</span></span></p>
-                <div className="mt-8 text-xs font-black text-slate-400 tracking-widest uppercase animate-pulse">
-                   Warning: 3 Strikes will result in immediate disqualification.
+                <p className="text-slate-400 font-black uppercase tracking-widest text-xs mb-0 flex flex-col items-center gap-2">
+                  Cumulative Strikes
+                  <span className="text-white text-7xl block mt-2 font-black tracking-tighter">{strikeCount} <span className="text-2xl text-slate-600">/ 3</span></span>
+                </p>
+                <div className="mt-10 text-[10px] font-black text-red-400/60 tracking-[0.3em] uppercase animate-pulse">
+                   Warning: Terminal Disqualification at Strike 3
                 </div>
              </div>
           </motion.div>

@@ -37,7 +37,7 @@ export function StudentDashboard() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-white/5 backdrop-blur-xl rounded-3xl border border-white/10 shadow-xl overflow-hidden relative z-10"
+        className="glass-card rounded-3xl overflow-hidden relative z-10"
       >
         <div className="px-6 py-5 border-b border-white/10 bg-white/5">
           <h2 className="text-xl font-bold text-white">Your Applications</h2>
@@ -98,9 +98,9 @@ export function StudentDashboard() {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="bg-white rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl border border-slate-100 relative z-10"
+              className="glass-card rounded-[2.5rem] w-full max-w-2xl overflow-hidden shadow-2xl border border-white/10 relative z-10"
             >
-              <div className="bg-slate-900 p-8 text-white relative">
+              <div className="bg-white/5 p-8 text-white relative border-b border-white/10">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-10 h-10 bg-indigo-500 rounded-2xl flex items-center justify-center">
                     <Sparkles className="w-5 h-5 text-white" />
@@ -118,41 +118,41 @@ export function StudentDashboard() {
                 </button>
               </div>
 
-              <div className="p-8 max-h-[70vh] overflow-y-auto">
+              <div className="p-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
                 <div className="space-y-8">
-                  <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
-                    <p className="text-lg font-medium text-slate-700 leading-relaxed italic">"{activeFeedback.mentorFeedback.openingMessage}"</p>
+                  <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+                    <p className="text-lg font-medium text-slate-200 leading-relaxed italic">"{activeFeedback.mentorFeedback.openingMessage}"</p>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-green-50/50 p-6 rounded-3xl border border-green-100">
-                      <h4 className="text-xs font-black text-green-700 uppercase tracking-widest mb-3">Your Strengths</h4>
+                    <div className="bg-emerald-500/10 p-6 rounded-3xl border border-emerald-500/20">
+                      <h4 className="text-xs font-black text-emerald-400 uppercase tracking-widest mb-3">Your Strengths</h4>
                       <ul className="space-y-2">
                         {activeFeedback.mentorFeedback.strengths.map((s: string, i: number) => (
-                          <li key={i} className="text-sm font-bold text-green-800 flex items-start gap-2">
+                          <li key={i} className="text-sm font-bold text-emerald-200 flex items-start gap-2">
                             <Check className="w-4 h-4 mt-0.5 shrink-0" /> {s}
                           </li>
                         ))}
                       </ul>
                     </div>
 
-                    <div className="bg-indigo-50/50 p-6 rounded-3xl border border-indigo-100">
-                      <h4 className="text-xs font-black text-indigo-700 uppercase tracking-widest mb-3">Actionable Advice</h4>
+                    <div className="bg-primary-500/10 p-6 rounded-3xl border border-primary-500/20">
+                      <h4 className="text-xs font-black text-primary-400 uppercase tracking-widest mb-3">Actionable Advice</h4>
                       <ul className="space-y-3">
                         {activeFeedback.mentorFeedback.actionableFeedback.map((f: string, i: number) => (
-                          <li key={i} className="text-sm font-bold text-indigo-800 flex items-start gap-2 leading-snug">
-                            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mt-1.5 shrink-0" /> {f}
+                          <li key={i} className="text-sm font-bold text-primary-200 flex items-start gap-2 leading-snug">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary-400 mt-1.5 shrink-0" /> {f}
                           </li>
                         ))}
                       </ul>
                     </div>
                   </div>
 
-                  <div className="text-center pt-4 border-t border-slate-100">
-                    <p className="text-slate-500 font-medium">{activeFeedback.mentorFeedback.closingMessage}</p>
+                  <div className="text-center pt-4 border-t border-white/10">
+                    <p className="text-slate-400 font-medium">{activeFeedback.mentorFeedback.closingMessage}</p>
                     <button 
                       onClick={() => setActiveFeedback(null)}
-                      className="mt-8 px-12 py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all uppercase tracking-widest text-sm"
+                      className="mt-8 px-12 py-4 bg-primary-600 text-white font-black rounded-2xl hover:bg-primary-700 transition-all uppercase tracking-widest text-sm shadow-xl shadow-primary-900/40"
                     >
                       Got it, thanks!
                     </button>

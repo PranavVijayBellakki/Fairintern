@@ -53,7 +53,7 @@ const mockIndiaInternships = [
 
 function findInternships() {
   console.log("Fetching 5 current internship listings in India...\n");
-  
+
   mockIndiaInternships.forEach((internship, index) => {
     console.log(`[${index + 1}] ${internship.role} at ${internship.company}`);
     console.log(`    Location: ${internship.location}`);

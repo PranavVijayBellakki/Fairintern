@@ -107,25 +107,27 @@ export function InternshipDetail() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 min-h-screen">
       <button 
         onClick={() => navigate(-1)}
-        className="flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-slate-900 mb-8 transition-colors"
+        className="flex items-center gap-2 text-sm font-bold text-slate-400 hover:text-white mb-8 transition-colors glass-button px-4 py-2 rounded-xl border border-white/5"
       >
         <ArrowLeft className="w-4 h-4" /> Back to internships
       </button>
 
       {/* Main Internship Description */}
-      <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm mb-10">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-8 border-b border-slate-100 pb-8">
+      <div className="glass-card rounded-[2.5rem] p-8 md:p-12 border border-white/10 shadow-2xl mb-10 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary-600/5 rounded-full blur-[80px] -mr-32 -mt-32 pointer-events-none" />
+        
+        <div className="flex flex-col md:flex-row justify-between items-start gap-6 mb-10 border-b border-white/10 pb-10 relative z-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-lg text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/5 rounded-full text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 border border-white/10">
               {internship.source}
             </div>
-            <h1 className="text-3xl font-black text-slate-900 mb-3">{internship.role}</h1>
-            <div className="flex flex-wrap items-center gap-5 text-slate-600 font-medium">
-              <span className="flex items-center gap-1.5"><Building2 className="w-5 h-5 text-slate-400" /> {internship.company}</span>
-              <span className="flex items-center gap-1.5"><IndianRupee className="w-5 h-5 text-slate-400" /> {internship.stipend}</span>
+            <h1 className="text-4xl font-black text-white mb-4 tracking-tight leading-tight">{internship.role}</h1>
+            <div className="flex flex-wrap items-center gap-6 text-slate-300 font-bold">
+              <span className="flex items-center gap-2"><Building2 className="w-5 h-5 text-primary-400" /> {internship.company}</span>
+              <span className="flex items-center gap-2"><IndianRupee className="w-5 h-5 text-emerald-400" /> {internship.stipend}</span>
               {internship.startDate && (
-                <span className="flex items-center gap-1.5 text-indigo-600">
-                  <Calendar className="w-5 h-5 text-indigo-400" /> 
+                <span className="flex items-center gap-2 text-primary-300">
+                  <Calendar className="w-5 h-5 text-primary-400" /> 
                   {internship.startDate} to {internship.endDate}
                 </span>
               )}
@@ -133,31 +135,32 @@ export function InternshipDetail() {
           </div>
         </div>
 
-        <div className="prose prose-slate max-w-none mb-10">
-          <h3 className="text-lg font-bold text-slate-900 mb-3">About the Role</h3>
-          <p className="text-slate-600 leading-relaxed font-medium">{internship.description}</p>
+        <div className="prose prose-invert max-w-none mb-4 relative z-10">
+          <h3 className="text-xl font-bold text-white mb-4">About the Role</h3>
+          <p className="text-slate-300 leading-relaxed font-medium text-lg">{internship.description}</p>
         </div>
 
 
       </div>
 
       {/* Action Area for Application Flow */}
-      <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm text-center">
-        <h2 className="text-2xl font-black text-slate-900 mb-2">Apply for this Internship</h2>
-        <p className="text-slate-500 font-medium mb-8 max-w-xl mx-auto">
+      <div className="glass-card rounded-[2.5rem] p-10 md:p-12 border border-white/10 shadow-2xl text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary-600/5 to-transparent pointer-events-none" />
+        <h2 className="text-3xl font-black text-white mb-4 relative z-10">Apply for this Internship</h2>
+        <p className="text-slate-400 font-bold mb-10 max-w-xl mx-auto leading-relaxed relative z-10">
           To ensure fairness, all candidates must complete a brief skill-assessment task before submitting a resume.
         </p>
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-5 relative z-10">
           {taskScore === null ? (
             <button 
               onClick={() => setIsRulesOpen(true)}
-              className="w-full sm:w-auto px-8 py-3.5 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-colors flex items-center justify-center gap-2"
+              className="w-full sm:w-auto px-10 py-5 bg-white/10 text-white font-black rounded-2xl hover:bg-white/20 transition-all flex items-center justify-center gap-3 border border-white/10 glass-button uppercase tracking-widest text-sm shadow-xl"
             >
-              <PlayCircle className="w-5 h-5" /> Start Task
+              <PlayCircle className="w-5 h-5 text-primary-400" /> Start Task
             </button>
           ) : (
-            <div className="w-full sm:w-auto px-8 py-3.5 bg-green-50 text-green-700 font-bold rounded-xl border border-green-200 flex items-center justify-center gap-2">
+            <div className="w-full sm:w-auto px-10 py-5 bg-emerald-500/10 text-emerald-400 font-black rounded-2xl border border-emerald-500/20 flex items-center justify-center gap-3 shadow-lg uppercase tracking-widest text-sm">
               <CheckCircle2 className="w-5 h-5" /> Task Completed (Score: {taskScore}/10)
             </div>
           )}
@@ -165,7 +168,7 @@ export function InternshipDetail() {
           <button 
             disabled={taskScore === null}
             onClick={() => setIsApplyOpen(true)}
-            className={`w-full sm:w-auto px-8 py-3.5 font-bold rounded-xl transition-all ${taskScore === null ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-transparent' : 'bg-primary-600 text-white hover:bg-primary-700 shadow-md'}`}
+            className={`w-full sm:w-auto px-10 py-5 font-black rounded-2xl transition-all uppercase tracking-widest text-sm ${taskScore === null ? 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/5' : 'bg-primary-600 text-white hover:bg-primary-700 shadow-[0_10px_40px_rgba(20,184,166,0.3)]'}`}
           >
             Apply Now
           </button>
@@ -174,34 +177,37 @@ export function InternshipDetail() {
 
       {/* Rules & Regulations Modal */}
       <Modal isOpen={isRulesOpen} onClose={() => setIsRulesOpen(false)} title="Assessment Rules & Regulations">
-        <div className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-800 text-sm font-medium">
+        <div className="space-y-6">
+          <div className="bg-amber-500/10 border border-amber-500/20 p-5 rounded-2xl text-amber-200 text-sm font-bold leading-relaxed mb-4">
+            <div className="flex items-center gap-2 mb-1 text-amber-400 uppercase tracking-widest text-xs">
+               <AlertTriangle className="w-4 h-4" /> Warning
+            </div>
             Please read the following instructions carefully before starting the assessment.
           </div>
-          <ul className="space-y-3 text-sm text-slate-600 font-medium">
-            <li className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
+          <ul className="space-y-4 text-sm text-slate-300 font-bold">
+            <li className="flex items-start gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500 mt-1.5 shrink-0 shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
               This is a proctored environment. Tab switching is strictly prohibited.
             </li>
-            <li className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
+            <li className="flex items-start gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-500 mt-1.5 shrink-0" />
               Copy and Paste functionality has been disabled to ensure academic integrity.
             </li>
-            <li className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
+            <li className="flex items-start gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-500 mt-1.5 shrink-0" />
               You have one attempt to complete this task. Closing the window will void your progress.
             </li>
-            <li className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
+            <li className="flex items-start gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-500 mt-1.5 shrink-0" />
               Ensure you have a stable internet connection before proceeding.
             </li>
           </ul>
-          <div className="pt-4">
+          <div className="pt-6">
             <button 
               onClick={startSecureSession}
-              className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all shadow-xl uppercase tracking-widest flex items-center justify-center gap-3"
+              className="w-full py-5 bg-primary-600 text-white font-black rounded-[1.5rem] hover:bg-primary-700 transition-all shadow-[0_20px_40px_rgba(20,184,166,0.3)] uppercase tracking-widest flex items-center justify-center gap-3 text-sm"
             >
-              <Lock className="w-5 h-5" /> Enable Proctoring & Start
+              <Lock className="w-5 h-5 focus:animate-pulse" /> Enable Proctoring & Start
             </button>
           </div>
         </div>
@@ -276,42 +282,42 @@ export function InternshipDetail() {
 
       {/* Final Apply Form */}
       <Modal isOpen={isApplyOpen} onClose={() => setIsApplyOpen(false)} title="Complete Application">
-        <form onSubmit={submitApplication} className="space-y-5 p-2">
+        <form onSubmit={submitApplication} className="space-y-6 p-2">
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1.5">Key Skills</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Key Skills</label>
             <input 
               type="text" 
               required
               value={skills}
               onChange={e => setSkills(e.target.value)}
               placeholder="React, Python, Figma..."
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-slate-400 font-medium"
+              className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-white/20 font-bold text-white glass-input transition-all"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1.5">Past Projects / Portfolio (Brief)</label>
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Past Projects / Portfolio (Brief)</label>
             <textarea 
               required
               value={projects}
               onChange={e => setProjects(e.target.value)}
               placeholder="Describe tools built, Hackathons won, etc."
               rows={3}
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl outline-none focus:border-slate-400 font-medium"
+              className="w-full px-5 py-4 bg-white/5 border border-white/10 rounded-2xl outline-none focus:border-white/20 font-bold text-white glass-input transition-all"
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-slate-700 mb-1.5">Resume</label>
-            <div className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${resumeUploaded ? 'border-green-500 bg-green-50' : 'border-slate-300 hover:bg-slate-50'}`}
+            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2 px-1">Resume</label>
+            <div className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-300 ${resumeUploaded ? 'border-emerald-500 bg-emerald-500/10' : 'border-white/10 hover:bg-white/5 bg-white/3'}`}
                  onClick={() => setResumeUploaded(true)}>
               {resumeUploaded ? (
-                 <div className="text-green-700 font-bold flex items-center justify-center gap-2"><CheckCircle2 className="w-5 h-5"/> Resume_Final.pdf Uploaded</div>
+                 <div className="text-emerald-400 font-black flex items-center justify-center gap-3 uppercase tracking-wider"><CheckCircle2 className="w-6 h-6"/> Resume Uploaded</div>
               ) : (
-                 <div className="text-slate-500 font-semibold flex flex-col items-center gap-2"><Upload className="w-6 h-6"/> Click to simulate upload (.pdf)</div>
+                 <div className="text-slate-500 font-bold flex flex-col items-center gap-3"><Upload className="w-8 h-8 opacity-50"/> <span className="uppercase tracking-[0.2em] text-[10px]">Click to upload PDF</span></div>
               )}
             </div>
           </div>
-          <button type="submit" className="w-full py-3.5 bg-slate-900 text-white font-bold rounded-xl mt-4 hover:bg-slate-800">
-            Submit Application
+          <button type="submit" className="w-full py-5 bg-primary-600 text-white font-black rounded-3xl mt-6 hover:bg-primary-700 shadow-xl shadow-primary-900/30 uppercase tracking-widest transition-all">
+            Submit Final Application
           </button>
         </form>
       </Modal>

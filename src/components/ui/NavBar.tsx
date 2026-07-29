@@ -17,15 +17,24 @@ export function NavBar() {
   // Unauthenticated Minimal Header
   if (!token) {
     return (
-      <nav className="sticky top-0 z-50 w-full bg-slate-50 border-b border-slate-200">
+      <nav className="sticky top-0 z-50 w-full glass-card border-b border-white/10 !rounded-none">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <Link to="/" className="flex items-center gap-2">
-              <div className="bg-slate-900 p-1.5 rounded-lg shadow-sm">
+              <div className="bg-white/10 p-1.5 rounded-lg border border-white/20">
                 <Shield className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-slate-900 tracking-tight">FairIntern</span>
+              <span className="text-xl font-black text-white tracking-tight">FairIntern</span>
             </Link>
+
+            <div className="flex items-center gap-4">
+              <Link 
+                to="/auth?role=student" 
+                className="text-sm font-black text-white px-5 py-2 glass-button rounded-xl border border-white/10 hover:bg-white/10 transition-all uppercase tracking-widest"
+              >
+                Sign In
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
@@ -34,37 +43,37 @@ export function NavBar() {
 
   // Authenticated Header
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white border-b border-slate-200 shadow-sm">
+    <nav className="sticky top-0 z-50 w-full glass-card border-b border-white/10 !rounded-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           <Link to="/" className="flex items-center gap-2">
-            <div className="bg-slate-900 p-1.5 rounded-lg shadow-sm">
+            <div className="bg-white/10 p-1.5 rounded-lg border border-white/20">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-slate-900 tracking-tight">FairIntern</span>
+            <span className="text-xl font-black text-white tracking-tight">FairIntern</span>
           </Link>
           
           <div className="flex items-center gap-6">
-            <Link to="/" className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors tracking-wide">Internships</Link>
+            <Link to="/" className="text-sm font-bold text-white hover:text-white transition-colors tracking-wide">Internships</Link>
             
-            <div className="flex items-center gap-4 border-l border-slate-200 pl-4">
+            <div className="flex items-center gap-4 border-l border-white/10 pl-4">
               {user?.name && (
-                <span className="text-sm font-medium text-slate-700 bg-slate-100 py-1 px-3 rounded-full border border-slate-200 hidden md:block">
-                  {user.role === 'recruiter' ? 'Recruiter: ' : ''}<strong className="text-slate-900">{user.name}</strong>
+                <span className="text-sm font-medium text-white glass-card py-1 px-3 rounded-full hidden md:block border-white/10">
+                  {user.role === 'recruiter' ? 'Recruiter: ' : ''}<strong className="text-white">{user.name}</strong>
                 </span>
               )}
               {user?.role !== 'recruiter' && (
                 <Link 
                   to="/profile" 
-                  className="text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-2"
+                  className="text-sm font-bold text-slate-300 hover:text-white transition-colors flex items-center gap-2"
                 >
-                  <User className="w-4 h-4 bg-slate-100 p-0.5 rounded-full" /> Profile
+                  <User className="w-4 h-4 bg-white/10 p-0.5 rounded-full" /> Profile
                 </Link>
               )}
 
               <button 
                 onClick={handleLogout}
-                className="text-sm font-semibold text-red-600 hover:text-red-800 transition-colors ml-2"
+                className="text-sm font-bold text-red-400 hover:text-red-300 transition-colors ml-2"
               >
                 Logout
               </button>

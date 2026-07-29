@@ -14,28 +14,30 @@ import { Auth } from './pages/Auth';
 import { AuthCallback } from './pages/AuthCallback';
 import { Profile } from './pages/Profile';
 import { InternshipBot } from './components/ui/InternshipBot';
+import { InternshipProvider } from './context/InternshipContext';
 
 
 export default function App() {
   return (
-    <Router>
-      <div className="min-h-screen flex flex-col font-sans text-slate-900 bg-slate-50">
-        <NavBar />
-        <main className="flex-1 flex flex-col">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/internships/:id" element={<InternshipDetail />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/recruiter" element={<RecruiterDashboard />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-          </Routes>
-        </main>
-        <Footer />
-        <InternshipBot />
-      </div>
+    <InternshipProvider>
+      <Router>
+        <div className="min-h-screen flex flex-col font-sans">
+          <NavBar />
+          <main className="flex-1 flex flex-col">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/internships/:id" element={<InternshipDetail />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/recruiter" element={<RecruiterDashboard />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
+            </Routes>
+          </main>
+          <Footer />
+          <InternshipBot />
+        </div>
 
-    </Router>
+      </Router>
+    </InternshipProvider>
   );
 }
-

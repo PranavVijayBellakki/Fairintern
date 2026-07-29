@@ -10,12 +10,12 @@ import { OrbitControls, Sphere, MeshDistortMaterial, Float, Stars } from '@react
 
 function Login3DBackground() {
   return (
-    <div className="absolute inset-0 -z-10 bg-[#0f172a] overflow-hidden">
+    <div className="absolute inset-0 -z-10 bg-slate-50 overflow-hidden">
       <Canvas camera={{ position: [0, 0, 10], fov: 45 }}>
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 5]} intensity={2} color="#818cf8" />
         <directionalLight position={[-10, -10, -5]} intensity={1} color="#34d399" />
-        <Stars radius={100} depth={50} count={5000} factor={4} saturation={1} fade speed={2} />
+        <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={2} color="#94a3b8" />
         
         <Float speed={2} rotationIntensity={1.5} floatIntensity={2}>
           <Sphere args={[1.6, 64, 64]} position={[-3, 1, 0]}>
@@ -39,8 +39,8 @@ function Login3DBackground() {
         
         <OrbitControls enableZoom={false} autoRotate autoRotateSpeed={1.5} />
       </Canvas>
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0f172a]/80 to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-50/90 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-50 to-transparent pointer-events-none" />
     </div>
   );
 }
@@ -152,19 +152,19 @@ export function Auth() {
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="w-full max-w-md shadow-2xl"
         >
-          <div className="bg-white/95 backdrop-blur-2xl p-8 sm:p-10 rounded-3xl border border-white/50 text-slate-900 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]">
+          <div className="glass-card bg-white p-8 sm:p-10 rounded-3xl text-slate-900 shadow-xl border border-slate-200">
             
             {/* Top Toggle */}
-            <div className="flex bg-slate-100 rounded-2xl p-1 mb-8 shadow-inner border border-slate-200">
+            <div className="flex bg-slate-50 rounded-2xl p-1 mb-8 shadow-inner border border-slate-200">
               <button
                 onClick={() => setAuthMode('student')}
-                className={`flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${authMode === 'student' ? 'bg-primary-600 shadow-md text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                className={`flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${authMode === 'student' ? 'bg-primary-600 shadow-md text-white' : 'text-slate-500 hover:text-slate-900'}`}
               >
                 <User className="w-4 h-4" /> Student
               </button>
               <button
                 onClick={() => setAuthMode('recruiter')}
-                className={`flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${authMode === 'recruiter' ? 'bg-indigo-600 shadow-md text-white' : 'text-slate-500 hover:text-slate-800'}`}
+                className={`flex-1 flex justify-center items-center gap-2 py-2.5 rounded-xl font-bold text-sm transition-all duration-300 ${authMode === 'recruiter' ? 'bg-indigo-600 shadow-md text-white' : 'text-slate-500 hover:text-slate-900'}`}
               >
                 <Briefcase className="w-4 h-4" /> Recruiter
               </button>
@@ -175,9 +175,9 @@ export function Auth() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
-                className="mx-auto w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6 border border-primary-100 shadow-inner"
+                className="mx-auto w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-6 border border-slate-200 shadow-inner"
               >
-                <Sparkles className="w-8 h-8 text-primary-600" />
+                <Sparkles className="w-8 h-8 text-primary-500" />
               </motion.div>
               <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
                 {authMode === 'recruiter' ? 'Company Portal' : (isLogin ? 'Welcome back' : 'Create Account')}
@@ -195,13 +195,11 @@ export function Auth() {
                 <AnimatePresence mode="popLayout">
                   <motion.div layout className="space-y-4">
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-1.5 pl-1">Recruiter Name</label>
+                      <label className="block text-sm font-bold text-slate-700 mb-1.5 pl-1">Name / Email</label>
                       <input 
-                        type="text" 
-                        required 
                         value={recName}
                         onChange={e => setRecName(e.target.value)}
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-slate-900 placeholder-slate-400 font-medium"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-slate-900 placeholder-slate-400 font-medium shadow-sm glass-input"
                         placeholder="E.g. Jane Doe"
                       />
                     </div>
@@ -212,7 +210,7 @@ export function Auth() {
                         required 
                         value={recCompany}
                         onChange={e => setRecCompany(e.target.value)}
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-slate-900 placeholder-slate-400 font-medium"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-slate-900 placeholder-slate-400 font-medium shadow-sm glass-input"
                         placeholder="E.g. Acme Corp"
                       />
                     </div>
@@ -223,7 +221,7 @@ export function Auth() {
                         required 
                         value={recPhone}
                         onChange={e => setRecPhone(e.target.value)}
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-slate-900 placeholder-slate-400 font-medium"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all text-slate-900 placeholder-slate-400 font-medium shadow-sm glass-input"
                         placeholder="+91 9876543210"
                       />
                     </div>
@@ -251,7 +249,7 @@ export function Auth() {
                         required 
                         value={email}
                         onChange={e => setEmail(e.target.value)}
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-slate-900 placeholder-slate-400 font-medium"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-slate-900 placeholder-slate-400 font-medium shadow-sm glass-input"
                         placeholder="you@example.com"
                       />
                     </div>
@@ -262,7 +260,7 @@ export function Auth() {
                         required 
                         value={password}
                         onChange={e => setPassword(e.target.value)}
-                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-slate-900 placeholder-slate-400 font-medium"
+                        className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-slate-900 placeholder-slate-400 font-medium shadow-sm glass-input"
                         placeholder="••••••••"
                       />
                     </div>
@@ -279,14 +277,14 @@ export function Auth() {
                           <button
                             type="button"
                             onClick={() => setRole('student')}
-                            className={`py-2 px-4 text-sm font-bold rounded-xl border transition-all ${role === 'student' ? 'bg-primary-600 border-primary-600 text-white shadow-md' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
+                            className={`py-2 px-4 text-sm font-bold rounded-xl border transition-all ${role === 'student' ? 'bg-primary-600 border-primary-600 text-white shadow-md' : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`}
                           >
                             Student
                           </button>
                           <button
                             type="button"
                             onClick={() => setRole('recruiter')}
-                            className={`py-2 px-4 text-sm font-bold rounded-xl border transition-all ${role === 'recruiter' ? 'bg-primary-600 border-primary-600 text-white shadow-md' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
+                            className={`py-2 px-4 text-sm font-bold rounded-xl border transition-all ${role === 'recruiter' ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100'}`}
                           >
                             Recruiter
                           </button>
@@ -315,14 +313,14 @@ export function Auth() {
                       <div className="w-full border-t border-slate-200" />
                     </div>
                     <div className="relative flex justify-center text-sm">
-                      <span className="px-4 bg-white text-slate-400 rounded-full text-xs uppercase tracking-widest font-bold">Or continue with</span>
+                      <span className="px-4 bg-white text-slate-500 rounded-full text-xs uppercase tracking-widest font-bold">Or continue with</span>
                     </div>
                   </div>
 
                   <div className="mt-6">
                     <button 
                       onClick={handleGoogleAuth}
-                      className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 hover:border-slate-300 shadow-sm transition-all"
+                      className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-slate-200 rounded-xl bg-white hover:bg-slate-50 shadow-sm transition-all glass-button"
                     >
                       <svg className="w-5 h-5" viewBox="0 0 24 24">
                         <path

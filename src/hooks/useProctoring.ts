@@ -11,10 +11,10 @@ export const useProctoring = (threshold = 0.06, debounceMs = 2000) => {
     try {
       const s = await navigator.mediaDevices.getUserMedia({ 
         video: { width: 640, height: 480 }, 
-        audio: true 
+        audio: false 
       });
       setStream(s);
-      setupAudioAnalysis(s);
+      // setupAudioAnalysis(s);
       setIsLive(true);
       return true;
     } catch (err) {
